@@ -185,21 +185,24 @@ Il modello distribuisce un cluster ElastiCache per la memorizzazione nella cache
 È possibile trovare l'indirizzo dell'endpoint negli output dello stack di memorizzazione nella cache dell'applicazione. Infine, scorri fino alla fine della pagina di amministrazione della cache in Moodle e imposta elasticache come archivio predefinito per la memorizzazione nella cache dell'applicazione.
 ![](images/aws-refarch-moodle-caching.png)
 
-#### Amazon CloudFront 
+---
+#### Amazon-CloudFront
+Amazon CloudFront è un servizio CDN (Content Delivery Network) globale che fornisce in modo sicuro dati, video, applicazioni e API ai tuoi spettatori con bassa latenza e velocità di trasferimento elevate. Il modello può facoltativamente configurare CloudFront per memorizzare nella cache il contenuto più vicino ai tuoi utenti. Ciò è particolarmente vantaggioso se i tuoi utenti sono distribuiti su una vasta area geografica. Ad esempio, studenti remoti in un programma online.
 
-Amazon CloudFront is a global content delivery network (CDN) service that securely delivers data, videos, applications, and APIs to your viewers with low latency and high transfer speeds. The template can optionally configure CloudFront to cache content closer to your users. This is especially beneficial if your users are spread across a large geographic area. For example, remote students in an online program.
+---
+### Amazon-Route-53
+Amazon Route 53 è un servizio Web DNS (Domain Name System) cloud altamente disponibile e scalabile.
+Il modello configurerà facoltativamente un alias Route53 che punta ad Application Load Balancer o CloudFront.
+Se stai utilizzando un altro sistema DNS, devi creare un record CNAME nel tuo sistema DNS per fare riferimento ad Application Load Balancer o CloudFront (se distribuito).
+Se non hai accesso al DNS, puoi lasciare vuoto il campo Nome dominio e il modello configurerà Moodle per utilizzare il nome di dominio di Application Load Balancer generato automaticamente.
 
-### Amazon Route 53
+---
+### License
+Questa libreria è concessa in licenza con la licenza Apache 2.0.
 
-Amazon Route 53 is a highly available and scalable cloud Domain Name System (DNS) web service. The template will optionally configure a Route53 alias that points to either the Application Load Balancer or CloudFront. If you are using another DNS system, you should create a CNAME record in your DNS system to reference either the Application Load Balancer or CloudFront (if deployed). If you don't have access to DNS you can leave Domain Name blank and the template will configure Moodle to use the auto-generated Application Load Balancer domain name. 
+Copyright di parti.
 
-## License
+- Moodle è concesso in licenza in base alla General Public License (GPLv3 o successiva) della Free Software Foundation.
+- OPcache è concesso in licenza con licenza PHP, versione 3.01.
 
-This library is licensed under the Apache 2.0 License. 
-
-Portions copyright.
-
-- Moodle is licensed under the General Public License (GPLv3 or later) from the Free Software Foundation.
-- OPcache is licensed under PHP License, version 3.01.
-
-Please see LICENSE for applicable license terms and NOTICE for applicable notices.
+Consultare LICENZA per i termini di licenza applicabili e AVVISO per gli avvisi applicabili.
