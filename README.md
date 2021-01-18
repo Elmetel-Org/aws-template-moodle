@@ -19,18 +19,10 @@
       - [Application-Caching](#application-caching)
       - [Amazon-CloudFront](#amazon-cloudfront)
     - [Amazon-Route-53](#amazon-route-53)
-- [void](#void)
-- [void](#void)
-- [void](#void)
----
-### reference-official
 
 ---
 ### repository
-https://github.com/redeluni/aws-tpl-moodle
-che è un fork del repository:
-https://github.com/ucla/aws-refarch-moodle
-che è un fork del repository:
+questo repository è un fork del repository:
 https://github.com/aws-samples/aws-refarch-moodle
 
 ---
@@ -47,32 +39,6 @@ che si trova nel repository
 - in `Web ASG Max` settare il numero massimo di istanze `EC2`, es: 2
 - in `Web ASG Min` settare il numero minimo di istanze `EC2`, es: 1
 - in `AvailabilityZones` selezionare tutte le opzioni
-
----
-### errori-nella-console
-Errore:
-```
-parameter value for parameter name PrivateSubnets does not exist, 
-parameter value for parameter name PublicSubnets does not exist, 
-parameter value for parameter name VpcId does not exist. 
-```
-Soluzione:
-Non lasciare vuoti i campi `PrivateSubnets`, `PublicSubnets`, `VpcId`
-
----
-Errore:
-```
-route53
-Parameter 'HostedZoneName' must match pattern 
-^(?!http)(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
-```
-Soluzione:
-settare su false il campo `HostedZoneName`
-
-
-webnocache
-Parameters: [MoodleConfigSecretArn] do not exist in the template
-
 
 ---
 ## Hosting-Moodle-su-AWS
