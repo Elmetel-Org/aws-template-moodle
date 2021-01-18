@@ -1,34 +1,126 @@
-# Hosting Moodle on AWS
-
-### Version 1.0.0
+## template-moodle
+18/01/2021 - file numero: 18
+- [reference-official](#reference-official)
+- [reference](#reference)
+- [repository](#repository)
+- [Hosting-Moodle-su-AWS](#Hosting-Moodle-su-AWS)
+  - [repository](#repository)
+  - [Panoramica](#panoramica)
+  - [In-dettaglio](#in-dettaglio)
+    - [Architettura](#architettura)
+    - [AWS-Certificate-Manager](#aws-certificate-manager)
+    - [Application-Load-Balancer](#application-load-balancer)
+    - [Amazon-Autoscaling](#amazon-autoscaling)
+    - [Amazon-Elastic-File-System-(EFS)](#amazon-elastic-file-system-efs)
+    - [Caching](#caching)
+      - [OPcache](#opcache)
+      - [Amazon-ElastiCache](#amazon-elasticache)
+	  - [Session-Caching](#session-caching)
+      - [Application-Caching](#application-caching)
+      - [Amazon-CloudFront](#amazon-cloudfront)
+    - [Amazon-Route-53](#amazon-route-53)
+- [void](#void)
+- [void](#void)
+- [void](#void)
+---
+### reference-official
 
 ---
-
-© 2018 Amazon Web Services, Inc. and its affiliates. All rights reserved. This work may not be reproduced or redistributed, in whole or in part, without prior written permission from Amazon Web Services, Inc. Commercial copying, lending, or selling is prohibited.
-
-Errors or corrections? Please create an issue and we will repsond to you.
+### repository
+https://github.com/redeluni/aws-tpl-moodle
+che è un fork del repository:
+https://github.com/ucla/aws-refarch-moodle
+che è un fork del repository:
+https://github.com/aws-samples/aws-refarch-moodle
 
 ---
+### installazione
+Per fare l'installazione bisogna cliccare nel file README.md
+che si trova nel repository
 
-## Overview
+- in `EC2 Key Pair` selezionare `moodle`
+- in `Use Route 53` selezionare `false`
+- in `VpcId` selezionare `vpc-6b2bae01 (172.31.0.0/16)`
+- in `Public Subnets` selezionare tutte le opzioni
+- in `Private Subnets` selezionare tutte le opzioni
+- in `Add dummy data (GiB)` aggiungere un valore maggiore di 0. es: 1000
+- in `Web ASG Max` settare il numero massimo di istanze `EC2`, es: 2
+- in `Web ASG Min` settare il numero minimo di istanze `EC2`, es: 1
+- in `AvailabilityZones` selezionare tutte le opzioni
 
-This repository consists of a set of nested templates which deploy a highly available, elastic, and scalable [Moodle](https://docs.moodle.org) environment on AWS. Moodle is a learning platform designed to provide educators, administrators and learners with a single robust, secure and integrated system to create personalized learning environments. This reference architecture provides a set of YAML templates for deploying Moodle on AWS using [Amazon Virtual Private Cloud (Amazon VPC)](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Introduction.html), [Amazon Elastic Compute Cloud (Amazon EC2)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html), [Auto Scaling](http://docs.aws.amazon.com/autoscaling/latest/userguide/WhatIsAutoScaling.html), [Elastic Load Balancing (Application Load Balancer)](http://docs.aws.amazon.com/elasticbalancing/latest/application/introduction.html), [Amazon Relational Database Service (Amazon RDS)](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html), [Amazon ElastiCache](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/WhatIs.html), [Amazon Elastic File System (Amazon EFS)](http://docs.aws.amazon.com/efs/latest/ug/whatisefs.html), [Amazon CloudFront](http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html), [Amazon Route 53](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html), [Amazon Certificate Manager (Amazon ACM)](http://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html)  with [AWS CloudFormation](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html). This architecture may be overkill for many Moodle deployments, however the templates can be run individually and/or modified to deploy a subset of the architecture that fits your needs.
+---
+### errori-nella-console
+Errore:
+```
+parameter value for parameter name PrivateSubnets does not exist, 
+parameter value for parameter name PublicSubnets does not exist, 
+parameter value for parameter name VpcId does not exist. 
+```
+Soluzione:
+Non lasciare vuoti i campi `PrivateSubnets`, `PublicSubnets`, `VpcId`
 
-## TL;DR
+---
+Errore:
+```
+route53
+Parameter 'HostedZoneName' must match pattern 
+^(?!http)(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
+```
+Soluzione:
+settare su false il campo `HostedZoneName`
 
-If you just want to deploy the Moodle stack follow these steps. You can read the detail below to better understand the architecture. 
 
-1) If you plan to use TLS, you must create or import your certificate into Amazon Certificate Manager before launching Moodle.
-2) Deploy the 00-master.yaml stack. **Do not enable session caching in ElastiCache and leave both the Min and Max Auto Scaling Group (ASG) size set to one.** The installation wizard will not complete if you have session caching configured.
-3) After the stack deployment completes, navigate to the web site to complete the Moodle installation. *NOTE: You may encounter a 504 Gateway Timeout or CloudFront error on the final step of the installation wizard (after setting admin password). You can simply refresh the page to complete the installation.*  You may also see "Installation must be finished from the original IP address, sorry." to solve this you will need to update your database and set the lastip field of the mdl_user table to the internal ip address of your ALB (you can find this by looking at the Network Interfaces from the EC2 page in the AWS Console).  From the webserver you can run:
-psql -h <hostname> -U<Username> 
-update mdl_user set lastip='<ip address>';
-4) Configure Application caching in Moodle Site Configuration (see below for details).
-5) Now you can update the stack that you just deployed to enable session caching and set the Min and Max Auto Scaling Group size values as desired.
+webnocache
+Parameters: [MoodleConfigSecretArn] do not exist in the template
 
-*Note you can reach the webserver by changing the minimum number of bastion hosts to 1 in the Auto Scaling Group or enable Systems Manager Session Manager by updating the IAM role assigned to the webserver instance (https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html)
 
-You can launch this CloudFormation stack, using your account, in the following AWS Regions. The template will work in other regions as Aurora PostgreSQL is deployed globally.
+---
+## Hosting-Moodle-su-AWS
+Version 1.0.0
+
+---
+### repository
+è un fork del repository:
+https://github.com/aws-samples/aws-refarch-moodle
+
+---
+### Panoramica
+
+Questo repository è costituito da un set di modelli nidificati che distribuiscono un ambiente Moodle altamente disponibile, elastico e scalabile su AWS.
+
+Questa architettura di riferimento fornisce un set di modelli YAML per la distribuzione di Moodle su AWS utilizzando:
+
+- [Amazon Virtual Private Cloud (Amazon VPC)](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Introduction.html)
+- [Amazon Elastic Compute Cloud (Amazon EC2)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html)
+- [Auto Scaling](http://docs.aws.amazon.com/autoscaling/latest/userguide/WhatIsAutoScaling.html)
+- [Elastic Load Balancing (Application Load Balancer)](http://docs.aws.amazon.com/elasticbalancing/latest/application/introduction.html)
+- [Amazon Relational Database Service (Amazon RDS)](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html)
+- [Amazon ElastiCache](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/WhatIs.html)
+- [Amazon Elastic File System (Amazon EFS)](http://docs.aws.amazon.com/efs/latest/ug/whatisefs.html)
+- [Amazon CloudFront](http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html)
+- [Amazon Route 53](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html)
+- [Amazon Certificate Manager (Amazon ACM)](http://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html)
+- with [AWS CloudFormation](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html)
+
+Questa architettura può essere eccessiva per molte distribuzioni di Moodle, tuttavia i modelli possono essere eseguiti individualmente e / o modificati per distribuire un sottoinsieme dell'architettura che si adatta alle tue esigenze.
+
+---
+### In-dettaglio
+Se vuoi solo distribuire lo stack Moodle, segui questi passaggi. Puoi leggere i dettagli di seguito per comprendere meglio l'architettura.
+
+1. Se prevedi di utilizzare `TLS`, devi creare o importare il certificato in Amazon Certificate Manager prima di avviare Moodle.
+2. Distribuisci lo stack 00-master.yaml. **Non abilitare il caching della sessione in ElastiCache e lasciare entrambe le dimensioni Min e Max Auto Scaling Group (ASG) impostate su uno.** La procedura guidata di installazione non verrà completata se la cache della sessione è configurata.
+3. Una volta completata la distribuzione dello stack, accedere al sito Web per completare l'installazione di Moodle. _NOTE: È possibile che si verifichi un errore 504 Gateway Timeout o CloudFront nel passaggio finale della procedura guidata di installazione (dopo aver impostato la password dell'amministratore). Puoi semplicemente aggiornare la pagina per completare l'installazione._ Potresti anche vedere "L'installazione deve essere completata dall'indirizzo IP originale, mi dispiace". per risolvere questo problema dovrai aggiornare il tuo database e impostare il campo lastip della tabella mdl_user sull'indirizzo IP interno del tuo ALB (puoi trovarlo guardando le interfacce di rete dalla pagina EC2 nella Console AWS). Dal webserver puoi eseguire:
+   psql -h <hostname> -U<Username>
+   update mdl_user set lastip='<ip address>';
+4. Configurare la memorizzazione nella cache dell'applicazione nella configurazione del sito Moodle (vedere di seguito per i dettagli).
+5. Ora puoi aggiornare lo stack appena distribuito per abilitare la memorizzazione nella cache della sessione e impostare i valori di dimensione del gruppo Auto Scaling Min e Max come desiderato.
+
+\*Note: puoi raggiungere il server web modificando il numero minimo di bastion host su 1 nel gruppo Auto Scaling o abilitare Systems Manager Session Manager aggiornando il ruolo IAM assegnato all'istanza del server web (https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html)
+
+Puoi avviare questo stack CloudFormation, utilizzando il tuo account, nelle seguenti regioni AWS.
+Il modello funzionerà in altre regioni poiché Aurora PostgreSQL viene distribuito a livello globale.
+
 
 | AWS Region Code | Name | Launch |
 | --- | --- | --- 
