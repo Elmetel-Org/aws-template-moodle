@@ -28,8 +28,7 @@ https://github.com/aws-samples/aws-refarch-moodle
 ---
 ### installazione
 Per fare l'installazione bisogna cliccare su uno dei bottoni arancioni `Launch Stack`
-che si trovano in questo file README.md
-che si trova nel repository
+che si trovano in questo file
 Lo stack viene lanciato nella console di aws dove bisogna settare alcuni campi:
 - in `EC2 Key Pair` selezionare `moodle`
 - in `Use Route 53` selezionare `false`
