@@ -154,28 +154,35 @@ Moodle consiglia di installare manualmente i plugin su ciascun server durante la
 Per rimanere fedeli alla metodologia dell'infrastruttura come codice utilizzata da CloudFormation, dovremmo creare uno script per l'installazione dei plugin. 
 In alternativa, puoi installare il plug-in su un singolo server, creare un'AMI e aggiornare la configurazione di avvio.*
 
+---
 ### Caching
+La memorizzazione nella cache può avere un impatto notevole sulle prestazioni di Moodle. Il modello configurerà varie forme di memorizzazione nella cache tra cui OPcache, CloudFront ed ElastiCache.
 
-Caching can have a dramatic impact on Moodle's performance. The template will configure various forms of caching including OPcache, CloudFront and ElastiCache. 
-
+---
 #### OPcache
+Opcache accelera l'esecuzione di PHP memorizzando nella cache gli script precompilati. I vantaggi di OPcache sono prestazioni migliorate e un utilizzo della memoria notevolmente inferiore. Il modello configura OPcache come descritto [qui](https://docs.moodle.org/34/en/OPcache).
 
-Opcache speeds up PHP execution caching precompiled scripts in memory. OPcache benefits are increased performance and significantly lower memory usage. The template configures OPcache as described [here](https://docs.moodle.org/34/en/OPcache).
+---
+#### Amazon-ElastiCache
+Amazon ElastiCache per Memcached è un servizio di archivio di valori-chiave in memoria compatibile con Memcached che può essere utilizzato come cache o archivio dati. 
+Moodle consiglia di 
+[non utilizzare lo stesso server memcached per entrambe le sessioni e MUC. Gli eventi che attivano l'eliminazione delle cache MUC portano all'eliminazione di MUC dal server memcached](https://docs.moodle.org/26/en/Session_handling).
+Pertanto, il modello configura due cluster elasticache, uno per la memorizzazione nella cache della sessione e uno per la memorizzazione nella cache dell'applicazione.
 
-#### Amazon ElastiCache
+---
+#### Session-Caching
+Moodle consiglia di 
+[memorizzare le sessioni utente in un server memcached condiviso](https://docs.moodle.org/34/en/Server_cluster#Performance_recommendations)
+Il modello configura la memorizzazione nella cache della sessione come descritto [qui] (https://docs.moodle.org/34/en/Session_handling#Memcached_session_driver).
 
-Amazon ElastiCache for Memcached is a Memcached-compatible in-memory key-value store service that can be used as a cache or a data store. Moodle recommends that you [don't use the same memcached server for both sessions and MUC. Events triggering MUC caches to be purged leads to MUC purging the memcached server](https://docs.moodle.org/26/en/Session_handling). Therefore, the template configures two elasticache clusters, one for session caching and one for application caching.
+*Note: l'installazione guidata di Moodle fallisce se la memorizzazione nella cache della sessione memcached è abilitata durante la configurazione iniziale. Pertanto, è necessario lasciare la cache della sessione disabilitata durante l'installazione iniziale, quindi aggiornare il modello per abilitare la cache della sessione dopo aver completato l'installazione.*
 
-##### Session Caching
-
-Moodle recommends that you [store user sessions in one shared memcached server](https://docs.moodle.org/34/en/Server_cluster#Performance_recommendations). The template configures session caching as described [here](https://docs.moodle.org/34/en/Session_handling#Memcached_session_driver). 
-
-*Note: Moodle installation wizard fails if memcached session caching is enabled during the initial configuration. Therefore, you must leave session caching disabled during the initial installation, and then update the template to enable session caching after completing the installation.*
-
-##### Application Caching
-
-The template deploys an ElastiCache cluster for application caching, but the application caching must be configured after launch. You can configure memcache as described [here](https://docs.moodle.org/28/en/Caching#Memcached) filling in the auto-discovery endpoint to the list of Servers under both Store Configuration and Enable Clustered Servers (see image below). You can find the endpoint address in the outputs of the application caching stack. Finally, scroll to the bottom of the caching administration page in Moodle and set elasticache as the default store for application caching. 
-
+---
+#### Application-Caching
+Il modello distribuisce un cluster ElastiCache per la memorizzazione nella cache dell'applicazione, ma la memorizzazione nella cache dell'applicazione deve essere configurata dopo l'avvio. 
+È possibile configurare memcache come descritto 
+[qui](https://docs.moodle.org/28/en/Caching#Memcached) inserendo l'endpoint di rilevamento automatico nell'elenco dei server sia in Configurazione archivio che in Abilita server cluster (vedere immagine sotto). 
+È possibile trovare l'indirizzo dell'endpoint negli output dello stack di memorizzazione nella cache dell'applicazione. Infine, scorri fino alla fine della pagina di amministrazione della cache in Moodle e imposta elasticache come archivio predefinito per la memorizzazione nella cache dell'applicazione.
 ![](images/aws-refarch-moodle-caching.png)
 
 #### Amazon CloudFront 
