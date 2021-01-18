@@ -18,7 +18,7 @@
       - [Application-Caching](#application-caching)
       - [Amazon-CloudFront](#amazon-cloudfront)
     - [Amazon-Route-53](#amazon-route-53)
-
+    - [License](#license)
 ---
 ### repository
 questo repository è un fork del repository:
