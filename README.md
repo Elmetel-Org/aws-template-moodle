@@ -27,9 +27,10 @@ https://github.com/aws-samples/aws-refarch-moodle
 
 ---
 ### installazione
-Per fare l'installazione bisogna cliccare nel file README.md
+Per fare l'installazione bisogna cliccare su uno dei bottoni arancioni `Launch Stack`
+che si trovano in questo file README.md
 che si trova nel repository
-
+Lo stack viene lanciato nella console di aws dove bisogna settare alcuni campi:
 - in `EC2 Key Pair` selezionare `moodle`
 - in `Use Route 53` selezionare `false`
 - in `VpcId` selezionare `vpc-6b2bae01 (172.31.0.0/16)`
@@ -46,7 +47,6 @@ Version 1.0.0
 
 ---
 ### Panoramica
-
 Questo repository è costituito da un set di modelli nidificati che distribuiscono un ambiente Moodle altamente disponibile, elastico e scalabile su AWS.
 
 Questa architettura di riferimento fornisce un set di modelli YAML per la distribuzione di Moodle su AWS utilizzando:
