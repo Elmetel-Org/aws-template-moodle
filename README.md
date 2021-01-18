@@ -4,7 +4,6 @@
 - [reference](#reference)
 - [repository](#repository)
 - [Hosting-Moodle-su-AWS](#Hosting-Moodle-su-AWS)
-  - [repository](#repository)
   - [Panoramica](#panoramica)
   - [In-dettaglio](#in-dettaglio)
     - [Architettura](#architettura)
